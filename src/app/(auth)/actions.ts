@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { mergeGuestCart, readGuestCart } from "@/lib/cart-merge";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /** `sent`: a confirmation email was sent to this address. `unconfirmed`: sign-in blocked until the email is confirmed. */
 export type AuthState = { error?: string; sent?: string; unconfirmed?: string } | undefined;
@@ -115,4 +116,44 @@ export async function checkConfirmed(email: string, password: string, next: stri
   await mergeGuestCart(guestCart, data.user.id);
   revalidatePath("/", "layout");
   redirect(safeNext(next));
+}
+
+/** First step of the email-first flow: does a (non-guest) account already exist for this address? */
+export async function lookupEmail(email: string): Promise<{ exists: boolean } | { error: string }> {
+  const value = email.trim().toLowerCase();
+  if (!value) return { error: "Enter your mobile number or email" };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return { error: "Invalid email address" };
+  const admin = createAdminClient();
+  for (let page = 1; page <= 5; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) return { error: "Something went wrong. Please try again." };
+    if (data.users.some((u) => !u.is_anonymous && u.email?.toLowerCase() === value)) return { exists: true };
+    if (data.users.length < 1000) break;
+  }
+  return { exists: false };
+}
+
+/** "Forgot password?": emails a reset link that lands on /auth/reset. */
+export async function requestPasswordReset(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = field(formData, "email");
+  if (!email) return { error: "Enter your email." };
+  const supabase = await createClient();
+  const redirectTo = `${await callbackUrl("/auth/reset")}&type=recovery`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) return { error: friendly(error.message) };
+  return { sent: email };
+}
+
+/** Sets a new password for the user signed in by the reset link. */
+export async function updatePassword(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 6) return { error: "Passwords must be at least 6 characters." };
+  if (password !== formData.get("confirm")) return { error: "Passwords must match." };
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user || data.user.is_anonymous) return { error: "This reset link has expired. Request a new one." };
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: friendly(error.message) };
+  revalidatePath("/", "layout");
+  redirect("/");
 }

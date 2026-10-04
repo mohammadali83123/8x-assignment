@@ -26,6 +26,14 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const guestCart = await readGuestCart(supabase);
   const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  // Password-reset links only work in the browser that asked for them (the code is bound to it).
+  if (searchParams.get("type") === "recovery") {
+    return error
+      ? to("/signin", { error: "Open the password reset link in the same browser where you requested it, or request a new one." })
+      : to("/auth/reset", {});
+  }
+
   if (!error) {
     // Make sure the profile has the name, and bring over whatever the visitor put in their guest cart.
     const { data } = await supabase.auth.getUser();
