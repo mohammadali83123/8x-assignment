@@ -18,7 +18,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/signin">)
         next={nextPath}
         notice={
           notice === "confirmed"
-            ? { kind: "success", text: "Your email is confirmed. Sign in to continue." }
+            ? { kind: "success", text: "If you have confirmed your email, sign in to continue." }
             : typeof error === "string"
               ? { kind: "error", text: error }
               : undefined
