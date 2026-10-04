@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { mergeGuestCart, readGuestCart } from "@/lib/cart-merge";
 
 const safeNext = (value: string | null) =>
   value && value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") ? value : "/";
@@ -22,13 +23,15 @@ export async function GET(request: NextRequest) {
   if (!code) return signin({ notice: "confirmed" });
 
   const supabase = await createClient();
+  const guestCart = await readGuestCart(supabase);
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) return signin({ notice: "confirmed" });
 
-  // The DB trigger only covers brand-new auth rows; guest upgrades need the profile filled in here.
+  // Make sure the profile has the name, and bring over whatever the visitor put in their guest cart.
   const { data } = await supabase.auth.getUser();
   if (data.user) {
     await supabase.from("profiles").upsert({ id: data.user.id, full_name: data.user.user_metadata?.full_name ?? null });
+    await mergeGuestCart(guestCart, data.user.id);
   }
   return NextResponse.redirect(`${origin}${next}`);
 }
