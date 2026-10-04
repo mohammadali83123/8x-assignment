@@ -32,6 +32,8 @@ function friendly(message: string) {
   if (m.includes("already") && (m.includes("registered") || m.includes("exists")))
     return "An account with this email already exists. Try signing in instead.";
   if (m.includes("password")) return "Password is too weak. Use at least 6 characters.";
+  if (m.includes("security purposes") || m.includes("only request this"))
+    return "A confirmation email was just sent. Please wait a minute before requesting another.";
   if (m.includes("rate limit")) return "We can't send more emails right now. Please try again in a little while.";
   if (m.includes("email")) return "Please enter a valid email address.";
   return message;

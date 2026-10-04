@@ -43,6 +43,10 @@ function ResendInline({ email, next }: { email: string; next: string }) {
         <p role="status" className="text-[#067d62]">
           Confirmation email sent to {state.sent}.
         </p>
+      ) : state?.error ? (
+        <p role="alert" className="text-[#c40000]">
+          {state.error}
+        </p>
       ) : (
         <form action={resend}>
           <input type="hidden" name="email" value={email} />
