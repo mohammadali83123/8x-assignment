@@ -11,7 +11,9 @@ export function AccountMenu({ name }: { name: string | null }) {
     <div className="group relative">
       <Link href={name ? "/account" : "/signin"} className="block rounded border border-transparent px-2 py-1 leading-tight group-hover:border-white group-focus-within:border-white">
         <span className="block max-w-28 truncate text-xs">Hello, {name ?? "sign in"}</span>
-        <span className="hidden text-sm font-bold sm:block">Account &amp; Lists</span>
+        <span className="hidden text-sm font-bold sm:block">
+          Account &amp; Lists <span className="text-[9px] text-[#ccc]">&#9660;</span>
+        </span>
       </Link>
       <div className="invisible absolute right-0 top-full z-50 w-64 pt-1 opacity-0 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
         <div className="rounded bg-white p-4 text-sm text-[#0f1111] shadow-xl">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient, isGuest } from "@/lib/supabase/server";
 import { AccountMenu } from "./AccountMenu";
 import { CartLink } from "./CartLink";
+import { LanguageMenu } from "./LanguageMenu";
 import { Logo } from "./Logo";
 import { NavBar } from "./NavBar";
 import { SearchBar } from "./SearchBar";
@@ -41,6 +42,7 @@ export async function Header() {
           <SearchBar categories={cats} />
         </div>
         <div className="ml-auto flex items-center gap-1 sm:ml-0">
+          <LanguageMenu />
           <AccountMenu name={name} />
           <Link href="/orders" className="hidden rounded border border-transparent px-2 py-1 leading-tight hover:border-white md:block">
             <span className="block text-xs">Returns</span>
