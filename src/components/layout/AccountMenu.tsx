@@ -1,18 +1,19 @@
 import Link from "next/link";
+import { getLang, t } from "@/lib/i18n";
 import { signOut } from "./actions";
 
-const links = [
-  { href: "/account", label: "Your Account" },
-  { href: "/orders", label: "Your Orders" },
-];
-
-export function AccountMenu({ name }: { name: string | null }) {
+export async function AccountMenu({ name }: { name: string | null }) {
+  const lang = await getLang();
+  const links = [
+    { href: "/account", label: t(lang, "yourAccount") },
+    { href: "/orders", label: t(lang, "yourOrders") },
+  ];
   return (
     <div className="group relative">
       <Link href={name ? "/account" : "/signin"} className="block rounded border border-transparent px-2 py-1 leading-tight group-hover:border-white group-focus-within:border-white">
-        <span className="block max-w-28 truncate text-xs">Hello, {name ?? "sign in"}</span>
+        <span className="block max-w-28 truncate text-xs">{name ? t(lang, "helloName", { name }) : t(lang, "helloSignIn")}</span>
         <span className="hidden text-sm font-bold sm:block">
-          Account &amp; Lists <span className="text-[9px] text-[#ccc]">&#9660;</span>
+          {t(lang, "accountLists")} <span className="text-[9px] text-[#ccc]">&#9660;</span>
         </span>
       </Link>
       <div className="invisible absolute right-0 top-full z-50 w-64 pt-1 opacity-0 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
@@ -20,18 +21,18 @@ export function AccountMenu({ name }: { name: string | null }) {
           {name ? (
             <form action={signOut}>
               <button type="submit" className="w-full rounded-lg bg-[#ffd814] py-1.5 text-sm hover:bg-[#f7ca00]">
-                Sign out
+                {t(lang, "signOut")}
               </button>
             </form>
           ) : (
             <>
               <Link href="/signin" className="block rounded-lg bg-[#ffd814] py-1.5 text-center hover:bg-[#f7ca00]">
-                Sign in
+                {t(lang, "signIn")}
               </Link>
               <p className="mt-2 text-center text-xs">
-                New customer?{" "}
+                {t(lang, "newCustomer")}{" "}
                 <Link href="/signup" className="text-[#007185] hover:text-[#c45500] hover:underline">
-                  Start here.
+                  {t(lang, "startHere")}
                 </Link>
               </p>
             </>

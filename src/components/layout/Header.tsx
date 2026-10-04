@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient, isGuest } from "@/lib/supabase/server";
+import { getLang, t } from "@/lib/i18n";
 import { AccountMenu } from "./AccountMenu";
 import { CartLink } from "./CartLink";
 import { LanguageMenu } from "./LanguageMenu";
@@ -8,6 +9,7 @@ import { NavBar } from "./NavBar";
 import { SearchBar } from "./SearchBar";
 
 export async function Header() {
+  const lang = await getLang();
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
@@ -34,24 +36,38 @@ export async function Header() {
             <circle cx="12" cy="10" r="2.5" />
           </svg>
           <span>
-            <span className="block text-xs text-[#ccc]">Deliver to</span>
-            <span className="block text-sm font-bold">Pakistan</span>
+            <span className="block text-xs text-[#ccc]">{t(lang, "deliverTo")}</span>
+            <span className="block text-sm font-bold">{t(lang, "country")}</span>
           </span>
         </div>
         <div className="order-last w-full sm:order-none sm:w-auto sm:flex-1">
-          <SearchBar categories={cats} />
+          <SearchBar
+            categories={cats}
+            labels={{ all: t(lang, "all"), category: t(lang, "searchCategory"), placeholder: t(lang, "searchPlaceholder"), search: t(lang, "search") }}
+          />
         </div>
         <div className="ml-auto flex items-center gap-1 sm:ml-0">
           <LanguageMenu />
           <AccountMenu name={name} />
           <Link href="/orders" className="hidden rounded border border-transparent px-2 py-1 leading-tight hover:border-white md:block">
-            <span className="block text-xs">Returns</span>
-            <span className="block text-sm font-bold">&amp; Orders</span>
+            <span className="block text-xs">{t(lang, "returns")}</span>
+            <span className="block text-sm font-bold">{t(lang, "andOrders")}</span>
           </Link>
           <CartLink count={count} />
         </div>
       </div>
-      <NavBar categories={cats} />
+      <NavBar
+        categories={cats}
+        labels={{
+          nav: t(lang, "departments"),
+          all: t(lang, "all"),
+          bestSellers: t(lang, "bestSellers"),
+          deals: t(lang, "todaysDeals"),
+          browse: t(lang, "browseDepartments"),
+          allProducts: t(lang, "allProducts"),
+          close: t(lang, "closeMenu"),
+        }}
+      />
     </header>
   );
 }
