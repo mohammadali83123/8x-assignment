@@ -5,16 +5,27 @@ import { moveToCart, removeItem, saveForLater, updateQty } from "@/app/cart/acti
 
 const linkBtn = "text-xs text-[#007185] hover:text-[#c7511f] hover:underline disabled:opacity-50";
 
+export type CartActionLabels = {
+  qty: string;
+  quantity: string;
+  zeroDelete: string;
+  delete: string;
+  moveToCart: string;
+  saveForLater: string;
+};
+
 export function CartItemActions({
   productId,
   qty,
   maxQty,
   saved = false,
+  labels,
 }: {
   productId: number;
   qty: number;
   maxQty: number;
   saved?: boolean;
+  labels: CartActionLabels;
 }) {
   const [pending, start] = useTransition();
   const [optimisticQty, setOptimisticQty] = useOptimistic(qty);
@@ -24,7 +35,7 @@ export function CartItemActions({
       {!saved && (
         <>
           <label className="flex items-center gap-1 rounded-lg border border-[#d5d9d9] bg-[#f0f2f2] px-2 py-0.5 text-sm shadow-sm">
-            Qty:
+            {labels.qty}
             <select
               value={optimisticQty}
               disabled={pending}
@@ -36,9 +47,9 @@ export function CartItemActions({
                 });
               }}
               className="bg-transparent font-medium outline-none"
-              aria-label="Quantity"
+              aria-label={labels.quantity}
             >
-              <option value={0}>0 (Delete)</option>
+              <option value={0}>{labels.zeroDelete}</option>
               {Array.from({ length: Math.max(maxQty, qty) }, (_, i) => i + 1).map((n) => (
                 <option key={n} value={n}>
                   {n}
@@ -50,7 +61,7 @@ export function CartItemActions({
         </>
       )}
       <button className={linkBtn} disabled={pending} onClick={() => start(() => removeItem(productId))}>
-        Delete
+        {labels.delete}
       </button>
       <span className="text-[#d5d9d9]">|</span>
       <button
@@ -58,7 +69,7 @@ export function CartItemActions({
         disabled={pending}
         onClick={() => start(() => (saved ? moveToCart(productId) : saveForLater(productId)))}
       >
-        {saved ? "Move to cart" : "Save for later"}
+        {saved ? labels.moveToCart : labels.saveForLater}
       </button>
     </div>
   );
