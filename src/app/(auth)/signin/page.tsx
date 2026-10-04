@@ -6,13 +6,24 @@ import { signIn } from "../actions";
 export const metadata = { title: "Sign in" };
 
 export default async function SignInPage({ searchParams }: PageProps<"/signin">) {
-  const { next } = await searchParams;
+  const { next, notice, error } = await searchParams;
   const nextPath = typeof next === "string" ? next : "/";
   const query = nextPath === "/" ? "" : `?next=${encodeURIComponent(nextPath)}`;
 
   return (
     <AuthShell title="Sign in">
-      <AuthForm mode="signin" action={signIn} next={nextPath} />
+      <AuthForm
+        mode="signin"
+        action={signIn}
+        next={nextPath}
+        notice={
+          notice === "confirmed"
+            ? { kind: "success", text: "Your email is confirmed. Sign in to continue." }
+            : typeof error === "string"
+              ? { kind: "error", text: error }
+              : undefined
+        }
+      />
       <div className="mt-5 flex items-center gap-2 text-xs text-[#767676]">
         <span className="h-px flex-1 bg-[#e7e7e7]" />
         New to Amazon?
