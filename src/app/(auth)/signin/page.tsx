@@ -6,7 +6,7 @@ import { signIn } from "../actions";
 export const metadata = { title: "Sign in" };
 
 export default async function SignInPage({ searchParams }: PageProps<"/signin">) {
-  const { next, notice, error } = await searchParams;
+  const { next, error } = await searchParams;
   const nextPath = typeof next === "string" ? next : "/";
   const query = nextPath === "/" ? "" : `?next=${encodeURIComponent(nextPath)}`;
 
@@ -16,13 +16,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/signin">)
         mode="signin"
         action={signIn}
         next={nextPath}
-        notice={
-          notice === "confirmed"
-            ? { kind: "success", text: "If you have confirmed your email, sign in to continue." }
-            : typeof error === "string"
-              ? { kind: "error", text: error }
-              : undefined
-        }
+        notice={typeof error === "string" ? { kind: "error", text: error } : undefined}
       />
       <div className="mt-5 flex items-center gap-2 text-xs text-[#767676]">
         <span className="h-px flex-1 bg-[#e7e7e7]" />

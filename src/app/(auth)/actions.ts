@@ -99,3 +99,20 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
   revalidatePath("/", "layout");
   redirect(safeNext(formData.get("next")));
 }
+
+/**
+ * Polled by the "check your inbox" screen: signs the user in as soon as the emailed link has
+ * been opened (on any device). Only succeeds with the right password, so it reveals nothing.
+ */
+export async function checkConfirmed(email: string, password: string, next: string): Promise<{ waiting: true } | { error: string }> {
+  const supabase = await createClient();
+  const guestCart = await readGuestCart(supabase);
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    if (error.message.toLowerCase().includes("not confirmed")) return { waiting: true };
+    return { error: friendly(error.message) };
+  }
+  await mergeGuestCart(guestCart, data.user.id);
+  revalidatePath("/", "layout");
+  redirect(safeNext(next));
+}
