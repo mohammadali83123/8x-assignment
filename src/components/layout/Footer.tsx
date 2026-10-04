@@ -1,27 +1,16 @@
 import { BackToTop } from "./BackToTop";
 import { UsFlag } from "./LanguageMenu";
 import { Logo } from "./Logo";
+import { getLang, t, type Key } from "@/lib/i18n";
 
-const columns = [
-  { title: "Get to Know Us", links: ["Careers", "Blog", "About Amazon", "Investor Relations", "Amazon Devices", "Amazon Science"] },
+const columns: { title: Key; links: Key[] }[] = [
+  { title: "colKnow", links: ["careers", "blog", "aboutAmazon", "investor", "devices", "science"] },
   {
-    title: "Make Money with Us",
-    links: [
-      "Sell products on Amazon",
-      "Sell on Amazon Business",
-      "Sell apps on Amazon",
-      "Become an Affiliate",
-      "Advertise Your Products",
-      "Self-Publish with Us",
-      "Host an Amazon Hub",
-      "› See More Make Money with Us",
-    ],
+    title: "colMoney",
+    links: ["sellProducts", "sellBusiness", "sellApps", "affiliate", "advertise", "selfPublish", "hub", "seeMoreMoney"],
   },
-  { title: "Amazon Payment Products", links: ["Amazon Business Card", "Shop with Points", "Reload Your Balance", "Amazon Currency Converter"] },
-  {
-    title: "Let Us Help You",
-    links: ["Your Account", "Your Orders", "Shipping Rates & Policies", "Returns & Replacements", "Manage Your Content and Devices", "Help"],
-  },
+  { title: "colPayment", links: ["businessCard", "points", "reload", "converter"] },
+  { title: "colHelp", links: ["yourAccount", "yourOrders", "shipping", "returnsReplacements", "manageContent", "help"] },
 ];
 
 // Display-only, mirroring the "Amazon services" strip at the bottom of amazon.com.
@@ -55,20 +44,21 @@ const services: [string, string][] = [
 
 const pill = "flex items-center gap-2 rounded border border-[#848688] px-3 py-2.5 text-sm hover:border-white";
 
-export function Footer() {
+export async function Footer() {
+  const lang = await getLang();
   return (
     <footer className="mt-auto text-white">
-      <BackToTop />
+      <BackToTop label={t(lang, "backToTop")} />
       <div className="bg-[#232f3e] px-6 py-10">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4">
           {columns.map((col) => (
             <div key={col.title}>
-              <h3 className="mb-2 text-base font-bold">{col.title}</h3>
+              <h3 className="mb-2 text-base font-bold">{t(lang, col.title)}</h3>
               <ul className="space-y-1.5 text-sm text-[#ddd]">
                 {col.links.map((l) => (
                   <li key={l}>
                     <a href="#" className="hover:underline">
-                      {l}
+                      {t(lang, l)}
                     </a>
                   </li>
                 ))}
@@ -85,13 +75,13 @@ export function Footer() {
               <circle cx="10" cy="10" r="8" />
               <path d="M2 10h16M10 2c3 3 3 13 0 16M10 2c-3 3-3 13 0 16" />
             </svg>
-            English <span className="ml-2 text-[9px] text-[#ccc]">&#9650;&#9660;</span>
+            {t(lang, "languageName")} <span className="ml-2 text-[9px] text-[#ccc]">&#9650;&#9660;</span>
           </span>
           <span className={pill}>
-            <b>PKR</b> Pakistani Rupee
+            <b>PKR</b> {t(lang, "currencyName")}
           </span>
           <span className={pill}>
-            <UsFlag className="h-3 w-[18px]" /> United States
+            <UsFlag className="h-3 w-[18px]" /> {t(lang, "unitedStates")}
           </span>
         </div>
       </div>
@@ -106,13 +96,13 @@ export function Footer() {
         </div>
         <div className="mt-8 text-center text-xs text-[#ddd]">
           <p className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-            <span>Conditions of Use</span>
-            <span>Privacy Notice</span>
-            <span>Consumer Health Data Privacy Disclosure</span>
-            <span>Your Ads Privacy Choices</span>
+            <span>{t(lang, "conditions")}</span>
+            <span>{t(lang, "privacy")}</span>
+            <span>{t(lang, "healthPrivacy")}</span>
+            <span>{t(lang, "adsPrivacy")}</span>
           </p>
           <p className="mt-2">
-            &copy; 1996-{new Date().getFullYear()}, Amazon.clone &mdash; a clone built for an assignment; not affiliated with Amazon.com, Inc. or its affiliates.
+            {t(lang, "copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>

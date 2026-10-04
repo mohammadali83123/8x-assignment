@@ -12,7 +12,9 @@ export type HeroSlide = {
   image: string | null;
 };
 
-export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
+export type HeroLabels = { prev: string; next: string; goTo: string };
+
+export function HeroCarousel({ slides, labels }: { slides: HeroSlide[]; labels: HeroLabels }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = slides.length;
@@ -71,7 +73,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         <>
           <button
             type="button"
-            aria-label="Previous slide"
+            aria-label={labels.prev}
             onClick={() => go(index - 1)}
             className="absolute left-2 top-24 hidden h-24 w-12 items-center justify-center rounded text-4xl text-white/90 hover:bg-black/20 sm:flex lg:top-40"
           >
@@ -79,7 +81,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           </button>
           <button
             type="button"
-            aria-label="Next slide"
+            aria-label={labels.next}
             onClick={() => go(index + 1)}
             className="absolute right-2 top-24 hidden h-24 w-12 items-center justify-center rounded text-4xl text-white/90 hover:bg-black/20 sm:flex lg:top-40"
           >
@@ -90,7 +92,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               <button
                 key={i}
                 type="button"
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={labels.goTo.replace("{n}", String(i + 1))}
                 onClick={() => setIndex(i)}
                 className={`h-2.5 w-2.5 rounded-full ${i === index ? "bg-white" : "bg-white/40 hover:bg-white/70"}`}
               />

@@ -36,17 +36,19 @@ export function TileCard({
   );
 }
 
-export function SignInCard() {
+export type SignInLabels = { title: string; cta: string; newCustomer: string; startHere: string };
+
+export function SignInCard({ labels }: { labels: SignInLabels }) {
   return (
     <section className="flex flex-col gap-3 rounded bg-white p-5">
-      <h2 className="text-xl font-bold leading-tight">Sign in for the best experience</h2>
+      <h2 className="text-xl font-bold leading-tight">{labels.title}</h2>
       <Link href="/signin" className="rounded-lg bg-[#ffd814] py-2 text-center text-sm hover:bg-[#f7ca00]">
-        Sign in securely
+        {labels.cta}
       </Link>
       <p className="mt-auto text-sm text-[#565959]">
-        New customer?{" "}
+        {labels.newCustomer}{" "}
         <Link href="/signup" className="text-[#007185] hover:text-[#c7511f] hover:underline">
-          Start here.
+          {labels.startHere}
         </Link>
       </p>
     </section>

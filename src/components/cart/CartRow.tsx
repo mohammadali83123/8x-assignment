@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { Price } from "@/components/product/Price";
 import type { CartItem, Product } from "@/types/db";
+import { getLang, t } from "@/lib/i18n";
 import { CartItemActions } from "./CartItemActions";
 
 export type CartLine = Pick<CartItem, "qty" | "saved_for_later"> & {
   product: Pick<Product, "id" | "title" | "price" | "list_price" | "stock" | "thumbnail" | "is_prime">;
 };
 
-export function CartRow({ line, saved = false }: { line: CartLine; saved?: boolean }) {
+export async function CartRow({ line, saved = false }: { line: CartLine; saved?: boolean }) {
+  const lang = await getLang();
   const { product, qty } = line;
   const inStock = product.stock > 0;
   return (
@@ -32,14 +34,27 @@ export function CartRow({ line, saved = false }: { line: CartLine; saved?: boole
           </div>
         </div>
         <p className={`mt-1 text-xs ${inStock ? "text-[#007600]" : "text-[#b12704]"}`}>
-          {!inStock ? "Currently unavailable" : product.stock <= 5 ? `Only ${product.stock} left in stock` : "In Stock"}
+          {!inStock ? t(lang, "unavailable") : product.stock <= 5 ? t(lang, "onlyLeft", { n: product.stock }) : t(lang, "inStock")}
         </p>
         {product.is_prime && (
           <p className="mt-1 text-xs font-bold italic text-[#00a8e1]">
-            prime <span className="font-normal not-italic text-[#565959]">FREE delivery</span>
+            prime <span className="font-normal not-italic text-[#565959]">{t(lang, "freeDelivery")}</span>
           </p>
         )}
-        <CartItemActions productId={product.id} qty={qty} maxQty={Math.min(product.stock, 30)} saved={saved} />
+        <CartItemActions
+          productId={product.id}
+          qty={qty}
+          maxQty={Math.min(product.stock, 30)}
+          saved={saved}
+          labels={{
+            qty: t(lang, "qty"),
+            quantity: t(lang, "quantity"),
+            zeroDelete: t(lang, "zeroDelete"),
+            delete: t(lang, "delete"),
+            moveToCart: t(lang, "moveToCart"),
+            saveForLater: t(lang, "saveForLater"),
+          }}
+        />
       </div>
     </li>
   );

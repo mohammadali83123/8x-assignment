@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { percentOff } from "@/lib/format";
+import { getLang, t } from "@/lib/i18n";
 import type { Category, ProductSummary } from "@/types/db";
 import { HeroCarousel, type HeroSlide } from "@/components/home/HeroCarousel";
 import { ProductRow } from "@/components/home/ProductRow";
@@ -17,6 +18,7 @@ const GRADIENTS = [
 const ROW_SIZE = 14;
 
 export default async function Home() {
+  const lang = await getLang();
   const supabase = await createClient();
   const [{ data: cats }, { data: pool }] = await Promise.all([
     supabase.from("categories").select("id, slug, name, image_url").order("name"),
@@ -45,29 +47,29 @@ export default async function Home() {
   const topRated = [...products].sort((a, b) => b.rating - a.rating || b.rating_count - a.rating_count);
 
   const tiles: Tile[] = populated.map((c) => ({
-    label: `Shop ${c.name}`,
+    label: t(lang, "shopCat", { name: c.name }),
     href: `/s?cat=${c.slug}`,
     image: c.image_url ?? byCategory.get(c.id)![0].thumbnail,
   }));
   const dealTiles: Tile[] = deals.slice(0, 4).map((p) => ({
-    label: `${percentOff(p.price, p.list_price)}% off`,
+    label: t(lang, "pctOff", { pct: percentOff(p.price, p.list_price) }),
     href: `/dp/${p.id}`,
     image: p.thumbnail,
   }));
 
   const slides: HeroSlide[] = populated.slice(0, 4).map((c, i) => ({
-    headline: i === 0 ? `Discover ${c.name}` : `Shop ${c.name}`,
-    sub: i === 0 ? "Great prices and fast delivery on top picks." : "Handpicked favourites, delivered quickly.",
-    cta: `Shop ${c.name}`,
+    headline: t(lang, i === 0 ? "discoverCat" : "shopCat", { name: c.name }),
+    sub: t(lang, i === 0 ? "heroSub1" : "heroSub2"),
+    cta: t(lang, "shopCat", { name: c.name }),
     href: `/s?cat=${c.slug}`,
     gradient: GRADIENTS[i % GRADIENTS.length],
     image: byCategory.get(c.id)![0].thumbnail,
   }));
   if (slides.length === 0) {
     slides.push({
-      headline: "Welcome to Amazon Clone",
-      sub: "Browse everything we have in store.",
-      cta: "Start shopping",
+      headline: t(lang, "welcome"),
+      sub: t(lang, "welcomeSub"),
+      cta: t(lang, "startShopping"),
       href: "/s",
       gradient: GRADIENTS[0],
       image: null,
@@ -78,34 +80,45 @@ export default async function Home() {
 
   return (
     <div>
-      <HeroCarousel slides={slides} />
+      <HeroCarousel
+        slides={slides}
+        labels={{ prev: t(lang, "prevSlide"), next: t(lang, "nextSlide"), goTo: t(lang, "goToSlide", { n: "{n}" }) }}
+      />
       <div className="relative z-10 mx-auto max-w-[1500px] space-y-5 px-4 pb-8 lg:-mt-52">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {tiles.length > 0 && (
-            <TileCard title="Shop by category" tiles={tiles.slice(0, 4)} linkText="See all categories" linkHref="/s" />
+            <TileCard title={t(lang, "shopByCategory")} tiles={tiles.slice(0, 4)} linkText={t(lang, "seeAllCategories")} linkHref="/s" />
           )}
           {tiles.length > 4 && (
-            <TileCard title="More to explore" tiles={tiles.slice(4, 8)} linkText="Explore more" linkHref="/s" />
+            <TileCard title={t(lang, "moreToExplore")} tiles={tiles.slice(4, 8)} linkText={t(lang, "exploreMore")} linkHref="/s" />
           )}
           {dealTiles.length > 0 && (
-            <TileCard title="Today's deals" tiles={dealTiles} linkText="See all deals" linkHref="/s" />
+            <TileCard title={t(lang, "todaysDealsTitle")} tiles={dealTiles} linkText={t(lang, "seeAllDeals")} linkHref="/s" />
           )}
-          <SignInCard />
+          <SignInCard
+            labels={{
+              title: t(lang, "signInBest"),
+              cta: t(lang, "signInSecurely"),
+              newCustomer: t(lang, "newCustomer"),
+              startHere: t(lang, "startHere"),
+            }}
+          />
         </div>
 
-        <ProductRow title="Today's deals" href="/s" products={deals.slice(0, ROW_SIZE)} />
-        <ProductRow title="Top rated" href="/s?sort=rating" products={topRated.slice(0, ROW_SIZE)} />
+        <ProductRow title={t(lang, "todaysDealsTitle")} seeMore={t(lang, "seeMore")} href="/s" products={deals.slice(0, ROW_SIZE)} />
+        <ProductRow title={t(lang, "topRated")} seeMore={t(lang, "seeMore")} href="/s?sort=rating" products={topRated.slice(0, ROW_SIZE)} />
         {categoryRows.map((c) => (
           <ProductRow
             key={c.id}
-            title={`Best in ${c.name}`}
+            title={t(lang, "bestIn", { name: c.name })}
+            seeMore={t(lang, "seeMore")}
             href={`/s?cat=${c.slug}`}
             products={byCategory.get(c.id)!.slice(0, ROW_SIZE)}
           />
         ))}
 
         {products.length === 0 && (
-          <p className="rounded bg-white p-8 text-center text-[#565959]">No products yet. Check back soon.</p>
+          <p className="rounded bg-white p-8 text-center text-[#565959]">{t(lang, "noProducts")}</p>
         )}
       </div>
     </div>
