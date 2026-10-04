@@ -2,6 +2,10 @@
 
 A clone of amazon.com built for the 8x assignment.
 
+**Live:** https://8x-assignment-amazon-clone.vercel.app
+
+**Features:** home with hero and deal rows · search with filters, sort and pagination · product pages with reviews · guest cart (anonymous Supabase session) that carries over on sign-up · cart with save-for-later · checkout with address book and mock payment · order history · account and addresses.
+
 **Stack:** Next.js 16 (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres, Auth, RLS) · Vercel
 
 ## Run locally
